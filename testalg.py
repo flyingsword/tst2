@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[41]:
+# In[1]:
 
 import pandas as pd
 import datetime
@@ -11,40 +11,40 @@ import urllib2
 import matplotlib.pyplot as plt
 
 
-# In[42]:
+# In[2]:
 
 start_date=datetime.datetime(2004,1,12)
 end_date=datetime.datetime(2015,11,12)
 
 
-# In[43]:
+# In[3]:
 
 NYSE_advn = pd.DataFrame.from_csv('data/NYSE_advn.csv', header=None, sep=',')
 NYSE_decln = pd.DataFrame.from_csv('data/NYSE_decln.csv', header=None, sep=',')
 
 
-# In[44]:
+# In[4]:
 
 spx = DataReader("^GSPC", "yahoo", start_date, end_date)
 
 
-# In[45]:
+# In[5]:
 
 td = pd.DataFrame(index=spx.index)
 
 
-# In[46]:
+# In[6]:
 
 td["Today"]=spx["Adj Close"]
 
 
-# In[47]:
+# In[7]:
 
 td["NYSE_advn"] = NYSE_advn[1][start_date:end_date]
 td["NYSE_decln"] = NYSE_decln[1][start_date:end_date]
 
 
-# In[48]:
+# In[8]:
 
 from matplotlib.dates import  DateFormatter, WeekdayLocator, HourLocator, DayLocator, MONDAY
 from matplotlib.finance import candlestick_ochl
@@ -53,12 +53,12 @@ get_ipython().magic(u'matplotlib inline')
 td["Today"].plot()
 
 
-# In[49]:
+# In[9]:
 
 td["NYSE_advn"][1:356].plot(grid=True, figsize=(10,8))
 
 
-# In[50]:
+# In[10]:
 
 spx["mDate"] = mdates.date2num(spx.index.to_pydatetime())
 datarec=[tuple(x) for x in spx[["mDate","Open","Close","High","Low"]].to_records(index=False)]
@@ -71,14 +71,14 @@ plt.setp(ax1.get_xticklabels(), rotation=30)
 plt.show()
 
 
-# In[51]:
+# In[11]:
 
 #Calculate McClellan Oscillator
 RANA = (1000.0*(NYSE_advn-NYSE_decln)/(NYSE_advn+NYSE_decln))
 RANA = RANA.apply(np.round)
 
 
-# In[52]:
+# In[12]:
 
 #EMA19 calculation
 def ema(data, window):
@@ -92,14 +92,14 @@ def ema(data, window):
     return data_ema
 
 
-# In[53]:
+# In[13]:
 
 NYMO = ema(RANA, 19) - ema(RANA, 39)
 NYMO = NYMO.apply(np.round)
 NYMO.plot()
 
 
-# In[54]:
+# In[14]:
 
 #calculate MACD
 MACD = ema(spx, 12) - ema(spx, 26)
@@ -114,7 +114,7 @@ plt.plot(dates[100:400],MACD_hist[100:400])
 
 
 
-# In[55]:
+# In[15]:
 
 #calcuate slow STO
 LookBack = 14
@@ -136,7 +136,7 @@ plt.plot(dates[200:400],slow_sto_K[200:400])
 plt.plot(dates[200:400],slow_sto_D[200:400])
 
 
-# In[56]:
+# In[16]:
 
 out = pd.DataFrame(index=spx.index)
 out['Buy'] = 0
@@ -145,7 +145,7 @@ out['Sell'][datetime.datetime(2015,11,3)]=1
 out['Buy'][datetime.datetime(2015,9,28)]=1
 
 
-# In[57]:
+# In[17]:
 
 def get_google_data(symbol, period, window):
     url_root = 'http://www.google.com/finance/getprices?i='
@@ -180,21 +180,35 @@ def get_google_data(symbol, period, window):
     return df
 
 
-# In[58]:
+# In[18]:
 
 spy=get_google_data('SPY',60,15)
 mf = (spy['o']-spy['c'])*spy['v']
 
 
-# In[59]:
+# In[ ]:
 
 sp500stocks = pd.DataFrame.from_csv('data/constituents.csv', sep=',')
-sp500stocks
 
 
-# In[60]:
+# In[ ]:
 
+count=0
 for index, row in sp500stocks.iterrows():
-    print(index)
+    count=count+1
+    print(count)
+    indext=index.replace('-','.')
+    print(indext)
+    data=get_google_data(indext,60,15)
+    mf = (data['o']-data['c'])*data['v']
+    if count==1:
+        mfall= mf
+        mfall.columns=[indext]
+    else:
+        mfall[indext] = mf
+        
+
+
+
     
 
