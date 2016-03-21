@@ -18,11 +18,9 @@ def get_google_data(symbol, period, window):
     url_root = 'http://www.google.com/finance/getprices?i='
     url_root += str(period) + '&p=' + str(window)
     url_root += 'd&f=d,o,h,l,c,v&df=cpct&q=' + symbol
-    print('fetch data from'+url_root)
     response = urllib2.urlopen(url_root,timeout=5.0)
     print('Get response...')
     data0 = response.read()
-    print('Get split')
     data = data0.split('\n')
     print('done with data fetching')
     #actual data starts at index = 7
@@ -79,8 +77,9 @@ for index, row in sp500stocks.iterrows():
     else:
         mfall[indext] = mf
         
+get_ipython().magic(u'matplotlib inline')
 
-
-
+mfsum = mfall.sum(axis=1)
+mfsum.plot()
     
 
