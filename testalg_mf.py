@@ -8,6 +8,7 @@ import datetime
 import numpy as np
 from pandas.io.data import DataReader
 import urllib2
+import socket
 import matplotlib.pyplot as plt
 
 
@@ -18,9 +19,16 @@ def get_google_data(symbol, period, window):
     url_root = 'http://www.google.com/finance/getprices?i='
     url_root += str(period) + '&p=' + str(window)
     url_root += 'd&f=d,o,h,l,c,v&df=cpct&q=' + symbol
-    response = urllib2.urlopen(url_root,timeout=5.0)
-    print('Get response...')
-    data0 = response.read()
+    count = 0
+    while (count < 10):
+        try:  
+            response = urllib2.urlopen(url_root,timeout=5.0)
+            print('Get response...')
+            data0 = response.read()
+            break
+        except socket.timeout:
+            count=count+1       
+            print("socket error, try again count=%d" % count)
     data = data0.split('\n')
     print('done with data fetching')
     #actual data starts at index = 7
